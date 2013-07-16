@@ -1,0 +1,72 @@
+options {
+  LOOKAHEAD = 1;
+  CHOICE_AMBIGUITY_CHECK = 2;
+  OTHER_AMBIGUITY_CHECK = 1;
+  STATIC = false;
+  DEBUG_PARSER = false;
+  DEBUG_LOOKAHEAD = false;
+  DEBUG_TOKEN_MANAGER = false;
+  ERROR_REPORTING = true;
+  JAVA_UNICODE_ESCAPE = false;
+  UNICODE_INPUT = false;
+  IGNORE_CASE = false;
+  USER_TOKEN_MANAGER = false;
+  USER_CHAR_STREAM = false;
+  BUILD_PARSER = true;
+  BUILD_TOKEN_MANAGER = true;
+  SANITY_CHECK = true;
+  FORCE_LA_CHECK = false;
+}
+
+PARSER_BEGIN(ScriptParser)
+
+package org.crsh.script;
+
+public class ScriptParser {
+
+  public static void main(String args[]) throws ParseException {
+    ScriptParser parser = new ScriptParser(System.in);
+    parser.Input();
+  }
+
+}
+
+PARSER_END(ScriptParser)
+
+<DEFAULT> TOKEN :
+{
+
+  < DECIMAL_DIGITS : ( ["0"-"9"] ) + > |
+  < HEXADECIMAL_DIGITS : ( ["0"-"9","a","b","c","d","e","f"] ) + > |
+  < LONG_TYPE_SUFFIX : "l" > |
+  < DECIMAL_TYPE_SUFFIX : "d" > |
+  < NUMERIC_MULTIPLIER : "kb" | "mb" | "gb" | "tb" | "pb" >
+
+}
+
+void Input() :
+{}
+{
+  MatchedBraces() ("\n"|"\r")* <EOF>
+}
+
+void MatchedBraces() :
+{}
+{
+  "{" [ MatchedBraces() ] "}"
+}
+
+void numeric_type_suffix() : {}
+{
+  <LONG_TYPE_SUFFIX> | <DECIMAL_TYPE_SUFFIX>
+}
+
+void decimal_integer_literal() : {}
+{
+  <DECIMAL_DIGITS> ( numeric_type_suffix() ) ? ( <NUMERIC_MULTIPLIER> ) ?
+}
+
+void hexadecimal_integer_literal() : {}
+{
+  "0x" <HEXADECIMAL_DIGITS> ( <LONG_TYPE_SUFFIX> ) ? ( <NUMERIC_MULTIPLIER> ) ?
+}
