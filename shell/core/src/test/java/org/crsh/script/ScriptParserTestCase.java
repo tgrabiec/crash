@@ -25,9 +25,84 @@ import java.io.StringReader;
 /** @author Julien Viet */
 public class ScriptParserTestCase extends AbstractTestCase {
 
-  public void testFoo() throws Exception {
-    ScriptParser parser = new ScriptParser(new StringReader("0x0123456789abcdef"));
-    parser.hexadecimal_integer_literal();
+  public void testVariable() throws Exception {
+    assertVariable("$$");
+    assertVariable("$?");
+    assertVariable("$^");
+    assertVariable("$a");
+    failVariable("$:");
+    failVariable("$:a");
+    assertVariable("$a:b");
+    assertVariable("@a");
+    failVariable("@:");
+    failVariable("@:a");
+    assertVariable("@a:b");
+    failVariable("");
+    failVariable("a");
+    failVariable("${");
+    failVariable("${a");
+    assertVariable("${a}");
+    failVariable("${a:}");
+    assertVariable("${:a}");
+    assertVariable("${a:b}");
   }
 
+  private void assertVariable(String s) {
+    try {
+      parser(s).variable();
+    }
+    catch (ParseException e) {
+      throw failure(e);
+    }
+  }
+
+  private void failVariable(String s) {
+    try {
+      parser(s).variable();
+      throw failure("Was expecting " + s + " to fail");
+    }
+    catch (TokenMgrError e) {
+      // Ok
+    }
+    catch (ParseException e) {
+      // Ok
+    }
+  }
+
+  public void testBracedVariable() throws Exception {
+    failBracedVariable("");
+    failBracedVariable("a");
+    failBracedVariable("${");
+    failBracedVariable("${a");
+    assertBracedVariable("${a}");
+    failBracedVariable("${a:}");
+    assertBracedVariable("${:a}");
+    assertBracedVariable("${a:b}");
+  }
+
+  private void assertBracedVariable(String s) {
+    try {
+      parser(s).braced_variable();
+    }
+    catch (ParseException e) {
+      throw failure(e);
+    }
+  }
+
+  private void failBracedVariable(String s) {
+    try {
+      parser(s).braced_variable();
+      throw failure("Was expecting " + s + " to fail");
+    }
+    catch (TokenMgrError e) {
+      // Ok
+    }
+    catch (ParseException e) {
+      // Ok
+    }
+  }
+
+  private ScriptParser parser(String s) {
+    return new ScriptParser(new StringReader(s));
+  }
 }
