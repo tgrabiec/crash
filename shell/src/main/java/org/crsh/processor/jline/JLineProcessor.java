@@ -19,6 +19,7 @@
 
 package org.crsh.processor.jline;
 
+import jline.Terminal;
 import jline.console.ConsoleReader;
 import jline.console.completer.Completer;
 import org.crsh.cli.impl.completion.CompletionMatch;
@@ -28,7 +29,11 @@ import org.crsh.shell.Shell;
 import org.crsh.shell.ShellProcess;
 import org.crsh.shell.ShellResponse;
 
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
@@ -51,10 +56,18 @@ public class JLineProcessor implements Runnable, Completer {
   /** Whether or not we switched on the alternate screen. */
   boolean useAlternate;
 
-  public JLineProcessor(Shell shell, ConsoleReader reader, PrintWriter writer) {
+  public JLineProcessor(Shell shell, InputStream in,
+                        PrintStream out,
+                        PrintStream err,
+                        Terminal term) throws IOException {
+
+    ConsoleReader reader = new ConsoleReader(null, in, System.out, term);
+    reader.addCompleter(this);
+
+    //
     this.shell = shell;
     this.reader = reader;
-    this.writer = writer;
+    this.writer = new PrintWriter(out);
     this.current = new AtomicReference<ShellProcess>();
     this.useAlternate = false;
   }

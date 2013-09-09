@@ -23,7 +23,6 @@ import com.sun.tools.attach.VirtualMachine;
 import org.crsh.cli.impl.descriptor.CommandDescriptorImpl;
 import jline.Terminal;
 import jline.TerminalFactory;
-import jline.console.ConsoleReader;
 import org.crsh.cli.impl.Delimiter;
 import org.crsh.cli.impl.descriptor.IntrospectionException;
 import org.crsh.cli.Argument;
@@ -54,7 +53,6 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.List;
 import java.util.Properties;
 import java.util.jar.Attributes;
@@ -354,7 +352,6 @@ public class CRaSH {
       // Start crash for this command line
       final Terminal term = TerminalFactory.create();
       term.init();
-      ConsoleReader reader = new ConsoleReader(null, new FileInputStream(FileDescriptor.in), System.out, term);
       Runtime.getRuntime().addShutdownHook(new Thread(){
         @Override
         public void run() {
@@ -368,13 +365,9 @@ public class CRaSH {
 
       AnsiConsole.systemInstall();
 
-      final PrintWriter out = new PrintWriter(AnsiConsole.out);
-      final JLineProcessor processor = new JLineProcessor(
-          shell,
-          reader,
-          out
-      );
-      reader.addCompleter(processor);
+      //
+      FileInputStream in = new FileInputStream(FileDescriptor.in);
+      final JLineProcessor processor = new JLineProcessor( shell, in, AnsiConsole.out, AnsiConsole.err, term);
 
       // Install signal handler
       InterruptHandler ih = new InterruptHandler(new Runnable() {
