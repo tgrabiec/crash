@@ -20,6 +20,7 @@
 package org.crsh.standalone;
 
 import com.sun.tools.attach.VirtualMachine;
+import jline.NoInterruptUnixTerminal;
 import org.crsh.cli.impl.descriptor.CommandDescriptorImpl;
 import jline.Terminal;
 import jline.TerminalFactory;
@@ -350,6 +351,7 @@ public class CRaSH {
     if (shell != null) {
 
       // Start crash for this command line
+      jline.TerminalFactory.registerFlavor(jline.TerminalFactory.Flavor.UNIX, NoInterruptUnixTerminal.class);
       final Terminal term = TerminalFactory.create();
       term.init();
       Runtime.getRuntime().addShutdownHook(new Thread(){
@@ -370,12 +372,12 @@ public class CRaSH {
       final JLineProcessor processor = new JLineProcessor( shell, in, AnsiConsole.out, AnsiConsole.err, term);
 
       // Install signal handler
-      InterruptHandler ih = new InterruptHandler(new Runnable() {
-        public void run() {
-          processor.cancel();
-        }
-      });
-      ih.install();
+//      InterruptHandler ih = new InterruptHandler(new Runnable() {
+//        public void run() {
+//          processor.cancel();
+//        }
+//      });
+//      ih.install();
 
       //
       try {
