@@ -20,6 +20,7 @@
 package org.crsh.processor.jline;
 
 import jline.console.ConsoleReader;
+import jline.console.UserInterruptException;
 import jline.console.completer.Completer;
 import org.crsh.cli.impl.completion.CompletionMatch;
 import org.crsh.cli.impl.Delimiter;
@@ -76,6 +77,9 @@ public class JLineProcessor implements Runnable, Completer {
         if ((line = reader.readLine(prompt)) == null) {
           break;
         }
+      }
+      catch (UserInterruptException e) {
+          continue;
       }
       catch (IOException e) {
         // What should we do other than that ?

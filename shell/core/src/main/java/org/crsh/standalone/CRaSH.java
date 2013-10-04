@@ -353,6 +353,8 @@ public class CRaSH {
         }
       });
 
+      reader.setHandleUserInterrupt(true);
+
       AnsiConsole.systemInstall();
 
       final PrintWriter out = new PrintWriter(AnsiConsole.out);
